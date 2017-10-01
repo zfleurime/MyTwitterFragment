@@ -46,6 +46,8 @@ The following **bonus** features are implemented:
 The following **additional** features are implemented:
 
 * [ ] List anything else that you can get done to improve the app functionality!
+[x] Used fonts for better UI
+[x] Used card Views for RecyclerView displayed
 
 ## Video Walkthrough
 
@@ -57,6 +59,7 @@ Video Walkthrough : link (http://i.imgur.com/cWzTuGe.gif)
 <img src='http://i.imgur.com/oYK6bpI.gif' title='New Tweet' width='' alt='Video Walkthrough' /> : Link (http://i.imgur.com/oYK6bpI.gif)
 <img src='http://i.imgur.com/DIk3ywA.gif' title='Reply' width='' alt='Video Walkthrough' /> : Link (http://i.imgur.com/DIk3ywA.gif)
 <img src='http://i.imgur.com/4GOM98Y.gif' title='Implicit Intent' width='' alt='Video Walkthrough' /> : Link (http://i.imgur.com/4GOM98Y.gif)
+<img src='http://i.imgur.com/qf3wSTs.gif' title='Twitter Offline' width='' alt='Video Walkthrough' /> : Link (http://i.imgur.com/4GOM98Y.gif)
 
 GIF created with [LiceCap](http://www.cockos.com/licecap/).
 
