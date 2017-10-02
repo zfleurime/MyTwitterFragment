@@ -67,6 +67,7 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
         TextView name;
         TextView body;
         TextView post_time;
+        TextView screen_name;
         Context ctx;
         android.widget.VideoView video_tweet;
         private ItemTweetBinding binding;
@@ -83,6 +84,7 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
             body = binding.body;
             post_time = binding.postTime;
             video_tweet = binding.videoTweet;
+            screen_name = binding.screenName;
 
         }
 
@@ -91,11 +93,13 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
 
 
             name.setText(tweet.getUser().getName());
+            screen_name.setText("@"+tweet.getUser().getScreen_name());
             body.setText(tweet.getBody());
             Typeface font_name = Typeface.createFromAsset(ctx.getAssets(), "fonts/Aller_BdIt.ttf");
             Typeface font_body = Typeface.createFromAsset(ctx.getAssets(), "fonts/Pacifico.ttf");
             name.setTypeface(font_name);
             body.setTypeface(font_body);
+            screen_name.setTypeface(font_name);
             post_time.setText(tweet.getCreated_at());
             Glide.with(ctx).load(tweet.getUser().getProfile_imageURL()).bitmapTransform(new RoundedCornersTransformation(ctx,4,1, RoundedCornersTransformation.CornerType.ALL)).into(profile_image);
 

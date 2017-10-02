@@ -43,16 +43,23 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentTop="true"
                     android:layout_marginStart="19dp"
-
-                    tools:text="TextView"
+                    tools:text="TextView Name "
                     android:textColor="@color/black"/>
+
+                <TextView
+                    android:id="@+id/screen_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/name"
+                    android:layout_alignStart="@+id/name"
+                    tools:text="TextView_screen" />
 
                 <TextView
                     android:id="@+id/body"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_alignStart="@+id/name"
-                    android:layout_below="@+id/name"
+                    android:layout_below="@+id/screen_name"
                     tools:text="TextView"
                     android:autoLink="all"
                     android:linksClickable="true"

@@ -55,6 +55,8 @@ Here's a walkthrough of implemented user stories:
 
 Video Walkthrough : link (http://i.imgur.com/cWzTuGe.gif)
 
+Video walkthrough with Username and name : (http://i.imgur.com/UdwRA1E.gif)
+<img src='http://i.imgur.com/UdwRA1E.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' /> : Link (http://i.imgur.com/cWzTuGe.gif)
 <img src='http://i.imgur.com/cWzTuGe.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' /> : Link (http://i.imgur.com/cWzTuGe.gif)
 <img src='http://i.imgur.com/oYK6bpI.gif' title='New Tweet' width='' alt='Video Walkthrough' /> : Link (http://i.imgur.com/oYK6bpI.gif)
 <img src='http://i.imgur.com/DIk3ywA.gif' title='Reply' width='' alt='Video Walkthrough' /> : Link (http://i.imgur.com/DIk3ywA.gif)
