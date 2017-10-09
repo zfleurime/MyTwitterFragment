@@ -2,7 +2,7 @@
 
 **MyTwitter** is an android app that allows a user to view home and mentions timelines, view user profiles with user timelines, as well as compose and post a new tweet. The app utilizes [Twitter REST API](https://developer.twitter.com/en/docs/api-reference-index).
 
-Time spent: **32** hours spent in total
+Time spent: **40** hours spent in total
 
 ## User Stories
 
