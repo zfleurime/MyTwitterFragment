@@ -59,7 +59,8 @@ public class FollowingFragment extends FriendsListFragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
+        dialog.show();
+        prepareProgressDialog();
         populateFollowersList();
         scrollListener = new EndlessRecyclerViewScrollListener(lm) {
 
@@ -166,6 +167,7 @@ public class FollowingFragment extends FriendsListFragment {
                 try {
                     addFriendsItems(response.getJSONArray("users"));
                     cursor = response.getLong("next_cursor");
+                    dialog.dismiss();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -174,11 +176,13 @@ public class FollowingFragment extends FriendsListFragment {
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                 super.onFailure(statusCode, headers, throwable, errorResponse);
+                dialog.dismiss();
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
                 super.onFailure(statusCode, headers, responseString, throwable);
+                dialog.dismiss();
             }
         },usrID);
     }

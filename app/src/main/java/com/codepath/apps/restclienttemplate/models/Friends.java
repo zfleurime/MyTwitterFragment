@@ -24,7 +24,7 @@ public class Friends extends BaseModel implements Parcelable{
 
     @Column
     @PrimaryKey
-    Long friendId;
+    long friendId;
 
 
     @Column

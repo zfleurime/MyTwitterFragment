@@ -2,6 +2,7 @@ package com.codepath.apps.restclienttemplate.fragments;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -80,7 +81,53 @@ public class UserTimelineFragment extends TweetListFragment {
 
         rvTweet.addOnScrollListener(scrollListener);
 
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                fetchUserTimeline();
+            }
+        });
 
+    }
+
+    private void fetchUserTimeline(){
+
+        if(!isOnline()){
+            Log.i(TAG, " fetchUserTimeline : Internet not available");
+            swipeContainer.setRefreshing(false);
+            Toast.makeText(mCtx,"Internet is not available", Toast.LENGTH_LONG).show();
+
+        }
+        else {
+            client.getUserTimelines(new JsonHttpResponseHandler() {
+
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+                    Log.i(TAG, response.toString());
+                    addItemResponse(response);
+                    /// Delete.table(Tweet.class);
+                    //Delete.table(User.class);
+                    // Delete.table(Entities.class);
+                    // Delete.table(Media.class);
+
+                    swipeContainer.setRefreshing(false);
+                    //  fillDatabase();
+                }
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONArray errorResponse) {
+                    Log.i(TAG, errorResponse.toString());
+                    swipeContainer.setRefreshing(false);
+                }
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                    Log.i(TAG, responseString);
+                    throwable.printStackTrace();
+                    swipeContainer.setRefreshing(false);
+                }
+            },screen_name);
+        }
     }
 
 
@@ -121,27 +168,18 @@ public class UserTimelineFragment extends TweetListFragment {
         if(!isOnline()){
             Toast.makeText(mCtx,"Internet is not available", Toast.LENGTH_LONG).show();
             Log.i(TAG, " populateTimeline : Internet not available");
-            //Todo floatTweet.setEnabled(false);
-       /*     tweetList.clear();
-            tweetAdp.clear();
-            tweetList.addAll(Tweet.loadRecentItemsfromDB());
-            tweetAdp.notifyItemRangeInserted(0, tweetList.size() - 1); */
             Log.i(TAG, " populateTimeline : size "+tweetList.size());
 
         }
 
         else
         {
-            //Todo floatTweet.setEnabled(true);
-            //Todo  tweetList.clear();
-            //Todo  tweetAdp.clear();
             client.getUserTimelines(new JsonHttpResponseHandler() {
 
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
                     Log.i(TAG, response.toString());
                     addItemResponse(response);
-                    //Todo fillDatabase();
                     dialog.dismiss();
                 }
 
@@ -164,33 +202,12 @@ public class UserTimelineFragment extends TweetListFragment {
 
     @Override
     public void onUserNameClicked(String userName) {
-        client.getOtherUserInfo(new JsonHttpResponseHandler() {
-                                    @Override
-                                    public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                                        try {
-                                            Log.i(TAG, response.toString());
-                                            User user = getUserDetails(response);
-                                            ProfileLoadListener listener = (ProfileLoadListener) getActivity();
-                                            listener.onProfileLoad(user);
+        Log.i(TAG, "Already in profile details. Don't do anything");
+    }
 
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
-                                        }
-
-                                    }
-                                    @Override
-                                    public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                                        Log.i(TAG, errorResponse.toString());
-                                        Toast.makeText(mCtx,"Unable to get user details",Toast.LENGTH_SHORT).show();
-                                    }
-
-                                    @Override
-                                    public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                                        Log.i(TAG, responseString);
-                                        Toast.makeText(mCtx,"Unable to get user details",Toast.LENGTH_SHORT).show();
-                                    }
-                                }
-                ,userName);
+    @Override
+    public void onProfileClicked(Tweet tweet) {
+        Log.i(TAG, "Already in profile details. Don't do anything");
     }
 
 

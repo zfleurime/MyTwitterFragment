@@ -11,48 +11,51 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.codepath.apps.restclienttemplate.models.Tweet;
-import com.codepath.apps.restclienttemplate.models.User;
+import com.codepath.apps.restclienttemplate.utils.CheckOnline;
 import com.codepath.apps.restclienttemplate.utils.EndlessRecyclerViewScrollListener;
 import com.codepath.apps.restclienttemplate.utils.TwitterApplication;
 import com.codepath.apps.restclienttemplate.utils.TwitterClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import cz.msebera.android.httpclient.Header;
 
 /**
- * Created by anushree on 10/3/2017.
+ * Created by anushree on 10/8/2017.
  */
 
-public class MentionsTimelineFragment extends TweetListFragment {
+public class FavoriteListFragment extends TweetListFragment {
 
-
-    public static final String TAG = "MentionsFragment";
+    public static final String TAG = "FavoriteListFragment";
     private TwitterClient client;
+    private static final String SCREEN_NAME = "screen_name";
+
+    private String screen_name;
+
+
+    public static FavoriteListFragment newInstance(String screenname) {
+        FavoriteListFragment fragment = new FavoriteListFragment();
+        Bundle bundle = new Bundle();
+        bundle.putSerializable(SCREEN_NAME,screenname);
+        fragment.setArguments(bundle);
+        return fragment;
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         client = TwitterApplication.getRestClient();
-
+        screen_name = getArguments().getString(SCREEN_NAME);
+        populatefavList();
 
     }
-
-
-    public void LoadMore(int page){
-        Log.i(TAG,"OnLoad MentionTime");
-    }
-
 
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
-
 
         return super.onCreateView(inflater, container, savedInstanceState);
 
@@ -69,35 +72,36 @@ public class MentionsTimelineFragment extends TweetListFragment {
 
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                Log.i(TAG, "loadNextDataFromApi MentionTimeLine page"+page);
+                Log.i(TAG, "loadNextDataFromApi HomeTimeLine page"+page);
                 loadNextDataFromApi(page);
 
             }
         };
 
         rvTweet.addOnScrollListener(scrollListener);
+
+
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                fetchMentionsTimeLine();
+                fetchFavorites();
             }
         });
 
-        populateMentionsTimeline();
 
     }
 
 
-    private void fetchMentionsTimeLine(){
+    private void fetchFavorites(){
 
         if(!isOnline()){
-            Log.i(TAG, " fetchMentionsTimeLine : Internet not available");
+            Log.i(TAG, " fetchFavorites : Internet not available");
             swipeContainer.setRefreshing(false);
             Toast.makeText(mCtx,"Internet is not available", Toast.LENGTH_LONG).show();
 
         }
         else {
-            client.getMentionsTimelines(new JsonHttpResponseHandler() {
+            client.getfavoritesList(new JsonHttpResponseHandler() {
 
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
@@ -114,26 +118,26 @@ public class MentionsTimelineFragment extends TweetListFragment {
 
                 @Override
                 public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONArray errorResponse) {
-                    Log.i(TAG, "fetchMentionsTimeLine Error : " + errorResponse.toString());
+                    Log.i(TAG, errorResponse.toString());
                     swipeContainer.setRefreshing(false);
                 }
 
                 @Override
                 public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                    Log.i(TAG, "fetchMentionsTimeLine Error : " + responseString);
+                    Log.i(TAG, responseString);
                     throwable.printStackTrace();
                     swipeContainer.setRefreshing(false);
                 }
-            });
+            },screen_name);
         }
     }
 
 
+
     public void loadNextDataFromApi(int page) {
 
-        if (!isOnline()) {
-            Log.i(TAG, " loadNextDataFromApi : Internet not available");
-            //Ask : Check if we need to load more tweets from database
+        if (!CheckOnline.isOnline()) {
+            Toast.makeText(mCtx,"Internet not available. Cannot load more data", Toast.LENGTH_LONG).show();
         }
         else
         {
@@ -144,7 +148,7 @@ public class MentionsTimelineFragment extends TweetListFragment {
             long id = getLastId();
             if(id==-1)
                 return;
-            client.getMoreMentionsTimelines(new JsonHttpResponseHandler() {
+            client.getMorefavoritesList(new JsonHttpResponseHandler() {
 
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
@@ -156,31 +160,27 @@ public class MentionsTimelineFragment extends TweetListFragment {
                 @Override
                 public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONArray errorResponse) {
                     Log.i(TAG, "loadNextDataFromApi onFailure" +errorResponse.toString() );
-                    Toast.makeText(mCtx,"Cannot load more tweets",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mCtx,"Cannot load more tweets",Toast.LENGTH_SHORT);
                 }
-            }, id);
+            }, screen_name,id);
         }
     }
 
-
-    private void populateMentionsTimeline() {
+    private void populatefavList() {
         if(!isOnline()){
             Toast.makeText(mCtx,"Internet is not available", Toast.LENGTH_LONG).show();
-            Log.i(TAG, " Internet not available");
-            Log.i(TAG, "size "+tweetList.size());
-
+            Log.i(TAG, " populateTimeline : Internet not available");
         }
 
         else
         {
-            client.getMentionsTimelines(new JsonHttpResponseHandler() {
+            client.getfavoritesList(new JsonHttpResponseHandler() {
 
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
                     Log.i(TAG, response.toString());
                     addItemResponse(response);
                     dialog.dismiss();
-
                 }
 
                 @Override
@@ -195,9 +195,21 @@ public class MentionsTimelineFragment extends TweetListFragment {
                     throwable.printStackTrace();
                     dialog.dismiss();
                 }
-            });
+            },screen_name);
         }
     }
+
+
+    @Override
+    public void onUserNameClicked(String userName) {
+        Log.i(TAG, "Already in profile details. Don't do anything");
+    }
+
+    @Override
+    public void onProfileClicked(Tweet tweet) {
+        Log.i(TAG, "Already in profile details. Don't do anything");
+    }
+
 
 
     @Override
@@ -226,6 +238,7 @@ public class MentionsTimelineFragment extends TweetListFragment {
         },tweet.gettweet_id());
 
     }
+
 
     @Override
     public void onFavClicked(Tweet tweet, int position) {
@@ -291,36 +304,5 @@ public class MentionsTimelineFragment extends TweetListFragment {
                 throwable.printStackTrace();
             }
         },tweet.gettweet_id());
-    }
-
-    @Override
-    public void onUserNameClicked(String userName) {
-        client.getOtherUserInfo(new JsonHttpResponseHandler() {
-                                    @Override
-                                    public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                                        try {
-                                            Log.i(TAG, response.toString());
-                                            User user = getUserDetails(response);
-                                            ProfileLoadListener listener = (ProfileLoadListener) getActivity();
-                                            listener.onProfileLoad(user);
-
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
-                                        }
-
-                                    }
-                                    @Override
-                                    public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                                        Log.i(TAG, errorResponse.toString());
-                                        Toast.makeText(mCtx,"Unable to get user details",Toast.LENGTH_SHORT).show();
-                                    }
-
-                                    @Override
-                                    public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                                        Log.i(TAG, responseString);
-                                        Toast.makeText(mCtx,"Unable to get user details",Toast.LENGTH_SHORT).show();
-                                    }
-                                }
-                ,userName);
     }
 }

@@ -1,5 +1,6 @@
 package com.codepath.apps.restclienttemplate.fragments;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -46,8 +47,13 @@ import cz.msebera.android.httpclient.Header;
 public class TweetListFragment extends Fragment implements TweetAdapter.ProfileClickedListener {
 
     public static final String TAG = "TweetListFragment";
+    public static final String TWEET = "tweet";
+    public static final String POSITION = "position";
+    public static final int REQUEST_CODE = 1;
 
-
+    public interface tweetPostedListener{
+        public void onTweetPosted();
+    }
 
 
     public interface ProfileLoadListener{
@@ -113,14 +119,27 @@ public class TweetListFragment extends Fragment implements TweetAdapter.ProfileC
                 Tweet tweet = tweetList.get(position);
                 Intent intent = new Intent();
                 intent.setClass(mCtx,TweetDetailActivity.class);
-                intent.putExtra("Tweet",tweet);
-                startActivity(intent);
+                intent.putExtra(TWEET,tweet);
+                intent.putExtra(POSITION,position);
+                startActivityForResult(intent,REQUEST_CODE);
             }
         });
-
-
     }
 
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if(resultCode == Activity.RESULT_OK){
+            Log.i(TAG,"OnActivityResult");
+            int position = data.getIntExtra(POSITION,0);
+            tweetList.remove(position);
+            Tweet tweet = data.getParcelableExtra(TWEET);
+            tweetList.add(position,tweet);
+            tweetAdp.notifyItemChanged(position);
+
+        }
+    }
 
     protected void prepareProgressDialog(){
         dialog.show();

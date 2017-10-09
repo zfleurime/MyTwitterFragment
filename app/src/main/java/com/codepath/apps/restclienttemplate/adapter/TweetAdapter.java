@@ -181,8 +181,6 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
         }
 
         private void setRetweetColor(Tweet tweet){
-
-
             if(tweet.isRetweeted()){
                 retweet.setColorFilter(ctx.getResources().getColor(R.color.twitter_retweet), PorterDuff.Mode.SRC_IN);
                 retweet_count.setTextColor(ctx.getResources().getColor(R.color.twitter_retweet));

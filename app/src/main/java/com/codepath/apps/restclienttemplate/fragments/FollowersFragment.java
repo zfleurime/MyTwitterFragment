@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.codepath.apps.restclienttemplate.utils.CheckOnline;
 import com.codepath.apps.restclienttemplate.utils.EndlessRecyclerViewScrollListener;
 import com.codepath.apps.restclienttemplate.utils.TwitterApplication;
 import com.codepath.apps.restclienttemplate.utils.TwitterClient;
@@ -60,6 +61,8 @@ public class FollowersFragment extends FriendsListFragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        dialog.show();
+        prepareProgressDialog();
         scrollListener = new EndlessRecyclerViewScrollListener(lm) {
 
             @Override
@@ -162,30 +165,38 @@ public class FollowersFragment extends FriendsListFragment {
     }
 
     private void populateFollowersList(){
-        client.getfollowersList(new JsonHttpResponseHandler(){
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                Log.i(TAG,response.toString());
-                try {
-                    addFriendsItems(response.getJSONArray("users"));
-                    cursor = response.getLong("next_cursor");
-                } catch (JSONException e) {
-                    e.printStackTrace();
+        if (!CheckOnline.isOnline()) {
+            Toast.makeText(mCtx,"Internet not available. Cannot load followers list ", Toast.LENGTH_LONG).show();
+        }
+        else {
+            client.getfollowersList(new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                    Log.i(TAG, response.toString());
+                    try {
+                        addFriendsItems(response.getJSONArray("users"));
+                        cursor = response.getLong("next_cursor");
+                        dialog.dismiss();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
-            }
 
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                super.onFailure(statusCode, headers, throwable, errorResponse);
-                Toast.makeText(mCtx,"Failed to fetch Followers List",Toast.LENGTH_SHORT).show();
-            }
+                @Override
+                public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                    super.onFailure(statusCode, headers, throwable, errorResponse);
+                    Toast.makeText(mCtx, "Failed to fetch Followers List", Toast.LENGTH_SHORT).show();
+                    dialog.dismiss();
+                }
 
-            @Override
-            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                super.onFailure(statusCode, headers, responseString, throwable);
-                Toast.makeText(mCtx,"Failed to fetch Followers List",Toast.LENGTH_SHORT).show();
-            }
-        },usrID);
+                @Override
+                public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                    super.onFailure(statusCode, headers, responseString, throwable);
+                    Toast.makeText(mCtx, "Failed to fetch Followers List", Toast.LENGTH_SHORT).show();
+                    dialog.dismiss();
+                }
+            }, usrID);
+        }
     }
 
 

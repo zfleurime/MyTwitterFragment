@@ -20,35 +20,37 @@ public class FriendsActivity extends AppCompatActivity {
 
     public static final int FOLLOW = 1;
     public static final int FOLLOWING = 2;
+    public static final String FOLLOWITEM = "follow_item";
+    public static final String USERID = "id";
 
     ActivityFriendsBinding binding;
     Toolbar toolbar;
-    public static final String FOLLOWITEM = "follow_item";
-    public static final String USERID = "id";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_friends);
         toolbar = binding.appBar.toolbar;
+        toolbar.setBackgroundColor(getResources().getColor(R.color.twitter_logo_blue));
+        toolbar.setLogo(R.drawable.ic_twittericon);
 
 
         long ID = getIntent().getExtras().getLong(USERID);
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         if(getIntent().getExtras().getInt(FOLLOWITEM)==FOLLOW){
-            toolbar.setTitle("Followers");
+            toolbar.setTitle("   Followers");
             FollowersFragment frag = FollowersFragment.newInstance(ID);
             ft.replace(R.id.friendFrameContainer,frag).commit();
 
         }
         else if(getIntent().getExtras().getInt(FOLLOWITEM)==FOLLOWING){
-            toolbar.setTitle("Following");
+            toolbar.setTitle("   Following");
             FollowingFragment frag = FollowingFragment.newInstance(ID);
             ft.replace(R.id.friendFrameContainer,frag).commit();
 
         }
         else
-            toolbar.setTitle("Followers");
+            toolbar.setTitle("   Followers");
 
         setSupportActionBar(toolbar);
     }

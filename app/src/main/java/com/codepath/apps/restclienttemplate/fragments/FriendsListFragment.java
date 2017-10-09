@@ -1,8 +1,10 @@
 package com.codepath.apps.restclienttemplate.fragments;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -17,6 +19,7 @@ import android.view.ViewGroup;
 import com.codepath.apps.restclienttemplate.R;
 import com.codepath.apps.restclienttemplate.adapter.FriendsAdapter;
 import com.codepath.apps.restclienttemplate.databinding.FriendsListFragmentBinding;
+import com.codepath.apps.restclienttemplate.models.DirectMessage;
 import com.codepath.apps.restclienttemplate.models.Friends;
 import com.codepath.apps.restclienttemplate.models.Tweet;
 import com.codepath.apps.restclienttemplate.utils.EndlessRecyclerViewScrollListener;
@@ -46,6 +49,7 @@ public class FriendsListFragment extends Fragment {
     private TwitterClient client;
     EndlessRecyclerViewScrollListener scrollListener;
     LinearLayoutManager lm;
+    ProgressDialog dialog;
 
 
     @Override
@@ -76,6 +80,7 @@ public class FriendsListFragment extends Fragment {
         friendList = new ArrayList<>();
         friendAdp = new FriendsAdapter(mCtx,friendList);
         rvFriends.setAdapter(friendAdp);
+        dialog = new ProgressDialog(mCtx,R.style.TwitterDialogStyle);
 
         Log.i(TAG, "onCreateView TweetListFragment = ");
         return view;
@@ -90,10 +95,6 @@ public class FriendsListFragment extends Fragment {
             @Override
             public void onItemClicked(RecyclerView recyclerView, int position, View v) {
                 Friends friend = friendList.get(position);
-             //   Intent intent = new Intent();
-             //   intent.setClass(mCtx,TweetDetailActivity.class);
-             //   intent.putExtra("Tweet",tweet);
-             //   startActivity(intent);
             }
         });
 
@@ -113,6 +114,12 @@ public class FriendsListFragment extends Fragment {
         } catch (IOException e)          { e.printStackTrace(); }
         catch (InterruptedException e) { e.printStackTrace(); }
         return false;
+    }
+
+    protected void prepareProgressDialog(){
+        dialog.show();
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        dialog.setContentView(R.layout.progressdialog);
     }
 
 

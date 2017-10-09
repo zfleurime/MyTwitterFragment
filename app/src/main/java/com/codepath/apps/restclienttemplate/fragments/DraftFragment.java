@@ -121,6 +121,7 @@ public class DraftFragment extends DialogFragment {
 
         @Override
         protected void onPostExecute(Boolean aBoolean) {
+
             Log.i("DraftFragment","Draft deleted");
         }
     }

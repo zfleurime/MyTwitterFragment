@@ -4,43 +4,45 @@ import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.PagerAdapter;
 import android.util.SparseArray;
-import android.view.View;
 import android.view.ViewGroup;
 
 import com.codepath.apps.restclienttemplate.fragments.DirectMessageFragment;
+import com.codepath.apps.restclienttemplate.fragments.FavoriteListFragment;
 import com.codepath.apps.restclienttemplate.fragments.HomeTimelineFragment;
 import com.codepath.apps.restclienttemplate.fragments.MentionsTimelineFragment;
 import com.codepath.apps.restclienttemplate.fragments.SearchFragment;
-import com.codepath.apps.restclienttemplate.fragments.TweetListFragment;
+import com.codepath.apps.restclienttemplate.fragments.UserTimelineFragment;
 
 /**
  * Created by anushree on 10/3/2017.
  */
 
-public class TimeLinePagerAdapter extends FragmentPagerAdapter {
+public class ProfilePagerAdapter extends FragmentPagerAdapter {
 
     private SparseArray<Fragment> registeredFragments = new SparseArray<>();
-    private final int NUM_OF_TABS = 4;
+    private final int NUM_OF_TABS = 2;
 
     Context mCtx;
+    String screen_name;
 
-    public TimeLinePagerAdapter(FragmentManager fm, Context ctx) {
+    public ProfilePagerAdapter(FragmentManager fm, Context ctx, String name) {
         super(fm);
         mCtx = ctx;
+        screen_name = name;
     }
 
     @Override
     public Fragment getItem(int position) {
-        if(position==0)
-            return new HomeTimelineFragment();
-        else if(position==1)
-            return new SearchFragment();
-        else if(position==2)
-            return new MentionsTimelineFragment();
-        else if(position==3)
-            return new DirectMessageFragment();
+        if(position==0) {
+            UserTimelineFragment frag = UserTimelineFragment.newInstance(screen_name);
+            return frag;
+        }
+        else if(position==1){
+            FavoriteListFragment frag = FavoriteListFragment.newInstance(screen_name);
+            return frag;
+        }
+
         else{
             return null;
         }

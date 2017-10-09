@@ -101,6 +101,7 @@ public class ReplyFragment extends DialogFragment {
 
 
         replyingto.setText("Replying to "+Html.fromHtml(Name));
+        edit_reply_tweet.setText("@"+tweet.getUser().getScreen_name());
 
         dao = new DraftTweetDAO(ctx);
         delete_reply.setOnClickListener(new View.OnClickListener() {
@@ -161,7 +162,7 @@ public class ReplyFragment extends DialogFragment {
         };
 
         edit_reply_tweet.addTextChangedListener(mTextEditorWatcher);
-
+        edit_reply_tweet.setSelection(edit_reply_tweet.getText().length());
 
         reply_tweet.setOnClickListener(new View.OnClickListener() {
             @Override

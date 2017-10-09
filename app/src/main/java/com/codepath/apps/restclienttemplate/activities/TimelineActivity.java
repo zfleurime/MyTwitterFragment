@@ -18,15 +18,23 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.ScaleAnimation;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.codepath.apps.restclienttemplate.adapter.TimeLinePagerAdapter;
+import com.codepath.apps.restclienttemplate.fragments.DirectMessageFragment;
 import com.codepath.apps.restclienttemplate.fragments.HomeTimelineFragment;
 import com.codepath.apps.restclienttemplate.fragments.NavHeaderFragment;
+import com.codepath.apps.restclienttemplate.fragments.NewDirectMessageFragment;
 import com.codepath.apps.restclienttemplate.fragments.NewTweetFragment;
 import com.codepath.apps.restclienttemplate.R;
 import com.codepath.apps.restclienttemplate.fragments.ReplyFragment;
@@ -38,12 +46,11 @@ import com.codepath.apps.restclienttemplate.models.User;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
-public class TimelineActivity extends AppCompatActivity implements NewTweetFragment.postTweetListener, TweetListFragment.ProfileLoadListener,NavHeaderFragment.followListener, ReplyFragment.ReplyTweetListener{
+public class TimelineActivity extends AppCompatActivity implements NewTweetFragment.postTweetListener, TweetListFragment.ProfileLoadListener,NavHeaderFragment.followListener,
+        ReplyFragment.ReplyTweetListener,TweetListFragment.tweetPostedListener, NewDirectMessageFragment.postDirectMessageListener {
     public static final String TAG = "TimelineActivity";
     public static final String FOLLOWITEM = "follow_item";
     public static final String USERID = "id";
-
-
     public static final String SEARCH = "SEARCH";
     public static final String NEWTWEET = "NEWTWEET";
 
@@ -52,37 +59,71 @@ public class TimelineActivity extends AppCompatActivity implements NewTweetFragm
     String my_profile_image;
 
     Context mCtx;
-
-
-
     FloatingActionButton floatTweet;
-
-
     private ActivityTimelineBinding binding;
     Toolbar toolbar;
     TabLayout tab;
     ViewPager vpager;
 
+    int previous_tab_position;
+
     FragmentManager fm;
     TimeLinePagerAdapter pagerAdp;
     DrawerLayout drawer;
     NavigationView navigateView;
+    private String profile_url;
 
+    int[] iconIntArray = {R.drawable.ic_twitter_newtweet,R.drawable.ic_twitter_newmessage};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.activity_timeline);
         binding = DataBindingUtil.setContentView(this,R.layout.activity_timeline);
         Intent intent = getIntent();
         String action = intent.getAction();
         String type = intent.getType();
+        if(intent.hasExtra("Profile_url"))
+            profile_url= intent.getStringExtra("Profile_url");
+        loadViews();
+        toolbar.setTitle("      Home");
+        setSupportActionBar(toolbar);
+        previous_tab_position = 0;
+        createCustomTabs();
+        setupDrawerContent(navigateView);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                drawer.openDrawer(Gravity.LEFT);
+            }
+        });
+
+        if(SEARCH.equals(action)){
+            vpager.setCurrentItem(1);
+        }
+        else if(NEWTWEET.equals(action)){
+            launchNewTweet();
+        }
+        else if (Intent.ACTION_SEND.equals(action) && type != null) {
+            if ("text/plain".equals(type)) {
+                // Make sure to check whether returned data will be null.
+                String titleOfPage = intent.getStringExtra(Intent.EXTRA_SUBJECT);
+                String urlOfPage = intent.getStringExtra(Intent.EXTRA_TEXT);
+                getUserInformationAndLaunchNewTweet(titleOfPage,urlOfPage);
+                Log.i(TAG,"Received Intent Twitter "+titleOfPage);
+            }
+        }
+
+        setLogofromprofileUrl();
+    }
+
+    private void loadViews(){
         toolbar = binding.toolbar;
         tab = binding.slidingTabs;
         vpager = binding.viewpager;
         pagerAdp = new TimeLinePagerAdapter(getSupportFragmentManager(),this);
         vpager.setAdapter(pagerAdp);
         tab.setupWithViewPager(vpager);
+        vpager.setOffscreenPageLimit(2); // to set pager pages keeping alive
         drawer = binding.drawerLayout;
         navigateView = binding.nvView;
         mCtx = TimelineActivity.this;
@@ -94,40 +135,73 @@ public class TimelineActivity extends AppCompatActivity implements NewTweetFragm
                 launchNewTweet();
             }
         });
-
-        toolbar.setTitle("      Home");
-        setSupportActionBar(toolbar);
-        createCustomTabs();
-        setupDrawerContent(navigateView);
+    }
 
 
+    protected void animateFab(final int position) {
+        floatTweet.clearAnimation();
+        // Scale down animation
+        ScaleAnimation shrink = new ScaleAnimation(1f, 0.2f, 1f, 0.2f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        shrink.setDuration(150);     // animation duration in milliseconds
+        shrink.setInterpolator(new DecelerateInterpolator());
+        shrink.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
 
-        if(SEARCH.equals(action)){
-            vpager.setCurrentItem(1);
-        }
-        else if(NEWTWEET.equals(action)){
-            launchNewTweet();
-        }
-
-        else if (Intent.ACTION_SEND.equals(action) && type != null) {
-            if ("text/plain".equals(type)) {
-
-                // Make sure to check whether returned data will be null.
-                String titleOfPage = intent.getStringExtra(Intent.EXTRA_SUBJECT);
-                String urlOfPage = intent.getStringExtra(Intent.EXTRA_TEXT);
-
-                getUserInformationAndLaunchNewTweet(titleOfPage,urlOfPage);
-                Log.i(TAG,"Received Intent Twitter "+titleOfPage);
             }
 
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                // Change FAB icon
+                floatTweet.setImageDrawable(getResources().getDrawable(iconIntArray[position], null));
+
+                // Scale up animation
+                ScaleAnimation expand = new ScaleAnimation(0.2f, 1f, 0.2f, 1f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+                expand.setDuration(100);     // animation duration in milliseconds
+                expand.setInterpolator(new AccelerateInterpolator());
+                floatTweet.startAnimation(expand);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        floatTweet.startAnimation(shrink);
+    }
+
+    private void setLogofromprofileUrl(){
+        if(profile_url!=null){
+            Log.i(TAG, "profile_url is not null");
+            Target target = new Target() {
+                @Override
+                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                    Log.i(TAG, "onBitmapLoaded");
+                    Bitmap b = Bitmap.createScaledBitmap(bitmap, 120, 120, false);
+                    BitmapDrawable icon = new BitmapDrawable(toolbar.getResources(), b);
+                    toolbar.setNavigationIcon(icon);
+                }
+
+                @Override
+                public void onBitmapFailed(Drawable errorDrawable) {
+                    Log.i(TAG, "onBitmapFailed");
+                }
+
+                @Override
+                public void onPrepareLoad(Drawable placeHolderDrawable) {
+                    Log.i(TAG, "onPrepareLoad");
+                }
+
+            };
+
+            Picasso.with(toolbar.getContext()).load(profile_url).into(target);
         }
-
+        else {
+            Log.i(TAG, "profile_url is null");
+            toolbar.setNavigationIcon(R.drawable.ic_twittericon);
+        }
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-    }
 
     private void setLogo(){
 
@@ -140,7 +214,7 @@ public class TimelineActivity extends AppCompatActivity implements NewTweetFragm
                     Log.i(TAG, "onBitmapLoaded");
                     Bitmap b = Bitmap.createScaledBitmap(bitmap, 120, 120, false);
                     BitmapDrawable icon = new BitmapDrawable(toolbar.getResources(), b);
-                    toolbar.setLogo(icon);
+                    toolbar.setNavigationIcon(icon);
                 }
 
                 @Override
@@ -159,33 +233,26 @@ public class TimelineActivity extends AppCompatActivity implements NewTweetFragm
         }
         else {
             Log.i(TAG, "Current user is null");
-            toolbar.setLogo(R.drawable.ic_twittericon);
+            toolbar.setNavigationIcon(R.drawable.ic_twittericon);
         }
 
 
     }
 
 
-
-    /*public void fillUserProfileInfo()
-    {
-        View headerLayout = navigateView.getHeaderView(0);
-        FrameLayout container = (FrameLayout) headerLayout.findViewById(R.id.container_header);
-        getSupportFragmentManager().beginTransaction().replace(container.getId(), NavHeaderFragment.newInstance()).commit();
-
-
-    } */
-
     public void createCustomTabs(){
         tab.getTabAt(0).setIcon(R.drawable.ic_twitter_home);
         tab.getTabAt(1).setIcon(R.drawable.ic_twitter_search);
         tab.getTabAt(2).setIcon(R.drawable.ic_mention);
+        tab.getTabAt(3).setIcon(R.drawable.ic_twitter_message);
 
         tab.getTabAt(tab.getSelectedTabPosition()).getIcon().setColorFilter(getResources().getColor(R.color.twitter_logo_blue), PorterDuff.Mode.SRC_IN);
 
         tab.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
+
+
                 tab.getIcon().setColorFilter(getResources().getColor(R.color.twitter_logo_blue), PorterDuff.Mode.SRC_IN);
                 switch(tab.getPosition()){
                     case 0 : toolbar.setTitle("      Home");
@@ -194,11 +261,19 @@ public class TimelineActivity extends AppCompatActivity implements NewTweetFragm
                         break;
                     case 2 : toolbar.setTitle("      Mentions");
                         break;
+                    case 3 : toolbar.setTitle("      Messages");
+                        break;
                     default : toolbar.setTitle("      Home");
                 }
 
-
-
+                if(previous_tab_position==3 && tab.getPosition()!=3){
+                    previous_tab_position = tab.getPosition();
+                    animateFab(0);
+                }
+                else if (previous_tab_position!=3 &&  tab.getPosition()==3){
+                    previous_tab_position = tab.getPosition();
+                    animateFab(1);
+                }
             }
 
             @Override
@@ -299,16 +374,26 @@ public class TimelineActivity extends AppCompatActivity implements NewTweetFragm
 
 
     private void launchNewTweet(){
-        NewTweetFragment tweetfrag = new NewTweetFragment();
-        Bundle bundle = new Bundle();
-        User currentUser = NavHeaderFragment.getCurrentUser();
-        if(currentUser!=null) {
-            bundle.putString("name", currentUser.getName());
-            bundle.putString("screen_name", currentUser.getScreen_name());
-            bundle.putString("my_profile_image", currentUser.getProfile_imageURL());
-            tweetfrag.setArguments(bundle);
-            tweetfrag.show(fm, "newTweet");
+
+        if(tab.getSelectedTabPosition()==3){
+            NewDirectMessageFragment msgfrag = new NewDirectMessageFragment();
+            msgfrag.show(fm, "newmessage");
         }
+        else {
+
+            NewTweetFragment tweetfrag = new NewTweetFragment();
+            Bundle bundle = new Bundle();
+            User currentUser = NavHeaderFragment.getCurrentUser();
+            if (currentUser != null) {
+                bundle.putString("name", currentUser.getName());
+                bundle.putString("screen_name", currentUser.getScreen_name());
+                bundle.putString("my_profile_image", currentUser.getProfile_imageURL());
+                tweetfrag.setArguments(bundle);
+                tweetfrag.show(fm, "newTweet");
+            }
+        }
+
+
     }
 
 
@@ -330,78 +415,15 @@ public class TimelineActivity extends AppCompatActivity implements NewTweetFragm
     }
 
 
-  /*   */
-
-   /* public void getUserInformation() {
-
-        if (!isOnline()) {
-            Log.i(TAG, " getUserInformation : Internet not available");
-        }
-        else
-        {
-            client.getUserInfo(new JsonHttpResponseHandler() {
-                @Override
-                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                    Log.i(TAG, response.toString());
-
-                    try {
-                        user_name = response.getString("name");
-                        screen_name = response.getString("screen_name");
-                        my_profile_image = response.getString("profile_image_url");
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-                }
-
-                @Override
-                public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                    super.onFailure(statusCode, headers, throwable, errorResponse);
-                }
-            });
-        }
-    } */
-
-
-
 
     @Override
     public void postTweet(String status) {
-
+        //vpager.setCurrentItem(0,true);
         HomeTimelineFragment frag = (HomeTimelineFragment)pagerAdp.getRegisteredFragment(0);
         Log.i(TAG, "Tweet ="+status);
         frag.UpdateNewTweet(status);
+
     }
-
-
-
-
-
-
-
-   /* public void fillDatabase(){
-        FlowManager.getDatabase(MyDatabase.class)
-                .beginTransactionAsync(new ProcessModelTransaction.Builder<>(
-                        new ProcessModelTransaction.ProcessModel<Tweet>() {
-                            @Override
-                            public void processModel(Tweet tweet, DatabaseWrapper wrapper) {
-                                tweet.save();
-                            }
-                        }).addAll(tweetList).build())  // add elements (can also handle multiple)
-                .error(new Transaction.Error() {
-                    @Override
-                    public void onError(Transaction transaction, Throwable error) {
-
-                    }
-                })
-                .success(new Transaction.Success() {
-                    @Override
-                    public void onSuccess(Transaction transaction) {
-
-                    }
-                }).build().execute();
-    } */
-
 
     @Override
     public void OnUserProfileLoaded() {
@@ -426,4 +448,21 @@ public class TimelineActivity extends AppCompatActivity implements NewTweetFragm
         startActivity(intent);
     }
 
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+            pagerAdp.getRegisteredFragment(tab.getSelectedTabPosition()).onActivityResult(requestCode,resultCode,data);
+    }
+
+    @Override
+    public void onTweetPosted() {
+        vpager.setCurrentItem(0,true);
+    }
+
+    @Override
+    public void postDirectMessage(String name, String message) {
+        DirectMessageFragment frag = (DirectMessageFragment)pagerAdp.getRegisteredFragment(3);
+        Log.i(TAG, "Message ="+name+" "+message);
+        frag.postNewDirectMessage(name, message);
+    }
 }

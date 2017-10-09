@@ -132,6 +132,8 @@ public class HomeTimelineFragment extends TweetListFragment {
                 try {
                     Log.i(TAG,"postTweet : Onsuccess");
                     addNewTweet(response);
+                    tweetPostedListener listener = (tweetPostedListener) getActivity();
+                    listener.onTweetPosted();
                     //fillDatabase();
 
                 } catch (JSONException e) {
@@ -186,20 +188,12 @@ public class HomeTimelineFragment extends TweetListFragment {
         if(!isOnline()){
             Toast.makeText(mCtx,"Internet is not available", Toast.LENGTH_LONG).show();
             Log.i(TAG, " populateTimeline : Internet not available");
-            //Todo floatTweet.setEnabled(false);
-       /*     tweetList.clear();
-            tweetAdp.clear();
-            tweetList.addAll(Tweet.loadRecentItemsfromDB());
-            tweetAdp.notifyItemRangeInserted(0, tweetList.size() - 1); */
             Log.i(TAG, " populateTimeline : size "+tweetList.size());
 
         }
 
         else
         {
-            //Todo floatTweet.setEnabled(true);
-          //Todo  tweetList.clear();
-          //Todo  tweetAdp.clear();
             client.getTimelines(new JsonHttpResponseHandler() {
 
                 @Override
@@ -207,7 +201,6 @@ public class HomeTimelineFragment extends TweetListFragment {
                     Log.i(TAG, response.toString());
                     addItemResponse(response);
                     dialog.dismiss();
-                    //Todo fillDatabase();
 
                 }
 

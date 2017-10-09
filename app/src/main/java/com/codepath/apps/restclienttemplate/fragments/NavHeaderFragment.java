@@ -49,6 +49,8 @@ public class NavHeaderFragment extends Fragment {
         public void onFollowingClicked(long ID);
     }
 
+
+
     private TwitterClient client;
     public static final String TAG = "NavHeaderFragment";
     User mUser;
@@ -81,7 +83,6 @@ public class NavHeaderFragment extends Fragment {
         mCtx = context;
     }
 
-    // TODO: Rename and change types and number of parameters
     //Current User
     public static NavHeaderFragment newInstance(@NonNull int userType) {
         NavHeaderFragment fragment = new NavHeaderFragment();
@@ -313,8 +314,6 @@ public class NavHeaderFragment extends Fragment {
             });
         }
     }
-
-
 
     public static User getCurrentUser(){
         return currentUser;

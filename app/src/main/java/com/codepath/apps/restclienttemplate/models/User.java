@@ -26,6 +26,8 @@ public class User extends BaseModel implements Parcelable {
     @Column
     String profile_imageURL;
 
+
+
     @Column
     @PrimaryKey
     Long uid;
@@ -46,6 +48,17 @@ public class User extends BaseModel implements Parcelable {
 
     @Column
     String desc;
+
+    @Column
+    String profile_background_url;
+
+    public String getProfile_background_url() {
+        return profile_background_url;
+    }
+
+    public void setProfile_background_url(String profile_background_url) {
+        this.profile_background_url = profile_background_url;
+    }
 
     public String getLocation() {
         return location;
@@ -141,6 +154,7 @@ public class User extends BaseModel implements Parcelable {
         user.following = object.getInt("friends_count");
         user.location = object.getString("location");
         user.desc = object.getString("description");
+        user.profile_background_url = object.getString("profile_background_image_url");
 
         return user;
     }
@@ -160,6 +174,7 @@ public class User extends BaseModel implements Parcelable {
         parcel.writeInt(following);
         parcel.writeString(location);
         parcel.writeString(desc);
+        parcel.writeString(profile_background_url);
     }
 
 
@@ -172,5 +187,6 @@ public class User extends BaseModel implements Parcelable {
         following = in.readInt();
         location = in.readString();
         desc = in.readString();
+        profile_background_url = in.readString();
     }
 }

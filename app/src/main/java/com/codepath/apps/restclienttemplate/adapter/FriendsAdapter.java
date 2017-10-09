@@ -30,7 +30,6 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.ViewHold
 
     ArrayList<Friends> list;
     Context mCtx;
-    //TweetAdapter.ProfileClickedListener mListener;
 
 
     public interface ProfileClickedListener{

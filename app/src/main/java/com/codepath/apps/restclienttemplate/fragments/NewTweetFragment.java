@@ -57,8 +57,11 @@ public class NewTweetFragment extends DialogFragment implements DraftFragment.Dr
 
     @Override
     public void draftSelected(String draftValue) {
-        //Log.i("NEwTweet Frgment","DraftValue "+draftValue);
+
+        getDraftTask task = new getDraftTask();
+        task.execute();
         edit_tweet.setText(draftValue);
+        edit_tweet.setSelection(edit_tweet.getText().length());
     }
 
     public interface postTweetListener{

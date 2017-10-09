@@ -146,11 +146,38 @@ public class TwitterClient extends OAuthBaseClient {
 
 
 
+    public void getDirectMessages(AsyncHttpResponseHandler handler){
+        String apiUrl = getApiUrl("direct_messages/sent.json");
+        RequestParams params = new RequestParams();
+        params.put("count", 25);
+        params.put("since_id", 1);
+        client.get(apiUrl, params, handler);
+    }
+
+    public void getMoreDirectMessages(AsyncHttpResponseHandler handler, long max_id){
+        String apiUrl = getApiUrl("direct_messages/sent.json");
+        RequestParams params = new RequestParams();
+        params.put("max_id", max_id);
+        client.get(apiUrl, params, handler);
+    }
+
+
+    public void postDirectMessage(AsyncHttpResponseHandler handler, String screen_name, String text){
+        String apiUrl = getApiUrl("direct_messages/new.json");
+        RequestParams params = new RequestParams();
+        params.put("screen_name", screen_name);
+        params.put("text", text);
+        client.post(apiUrl, params, handler);
+    }
+
+
+
     public void getUserTimelines(AsyncHttpResponseHandler handler, String screen_name) {
 		String apiUrl = getApiUrl("statuses/user_timeline.json");
 		// Can specify query string params directly or through RequestParams.
 		RequestParams params = new RequestParams();
 		params.put("count", 25);
+        params.put("since_id",1);
 		params.put("screen_name", screen_name);
 		client.get(apiUrl, params, handler);
 	}
@@ -198,7 +225,7 @@ public class TwitterClient extends OAuthBaseClient {
 
 
 
-	public void getMoreUserTimelines(AsyncHttpResponseHandler handler, String screen_name, Long max_id) {
+	public void getMoreUserTimelines(AsyncHttpResponseHandler handler, String screen_name, long max_id) {
 		String apiUrl = getApiUrl("statuses/user_timeline.json");
 		// Can specify query string params directly or through RequestParams.
 		RequestParams params = new RequestParams();
@@ -206,6 +233,30 @@ public class TwitterClient extends OAuthBaseClient {
 		params.put("max_id", max_id);
 		client.get(apiUrl, params, handler);
 	}
+
+
+    public void getfavoritesList(AsyncHttpResponseHandler handler, String screen_name) {
+        String apiUrl = getApiUrl("favorites/list.json");
+        // Can specify query string params directly or through RequestParams.
+        RequestParams params = new RequestParams();
+        params.put("screen_name", screen_name);
+        params.put("count", 25);
+        params.put("since_id",1);
+        client.get(apiUrl, params, handler);
+    }
+
+
+    public void getMorefavoritesList(AsyncHttpResponseHandler handler, String screen_name, long max_id) {
+        String apiUrl = getApiUrl("favorites/list.json");
+        // Can specify query string params directly or through RequestParams.
+        RequestParams params = new RequestParams();
+        params.put("screen_name", screen_name);
+        params.put("max_id",max_id);
+        client.get(apiUrl, params, handler);
+    }
+
+
+
 
 
 
