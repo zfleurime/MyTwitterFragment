@@ -22,7 +22,7 @@ The following **required** functionality is completed:
 The following **optional** features are implemented:
 
 * [x] User can view following / followers list through the profile
-* [ ] Implements robust error handling, [check if internet is available](http://guides.codepath.com/android/Sending-and-Managing-Network-Requests#checking-for-network-connectivity), handle error cases, network failures
+* [x] Implements robust error handling, [check if internet is available](http://guides.codepath.com/android/Sending-and-Managing-Network-Requests#checking-for-network-connectivity), handle error cases, network failures
 * [x] When a network request is sent, user sees an [indeterminate progress indicator](http://guides.codepath.com/android/Handling-ProgressBars#progress-within-actionbar)
 * [x] User can **"reply" to any tweet on their home timeline**
   * [x] The user that wrote the original tweet is automatically "@" replied in compose
@@ -36,25 +36,33 @@ The following **bonus** features are implemented:
 * [x] Use Parcelable instead of Serializable using the popular [Parceler library](http://guides.codepath.com/android/Using-Parceler).
 * [x] Leverages the [data binding support module](http://guides.codepath.com/android/Applying-Data-Binding-for-Views) to bind data into layout templates.
 * [ ] On the profile screen, leverage the [CoordinatorLayout](http://guides.codepath.com/android/Handling-Scrolls-with-CoordinatorLayout#responding-to-scroll-events) to [apply scrolling behavior](https://hackmd.io/s/SJyDOCgU) as the user scrolls through the profile timeline.
-* [ ] User can view their direct messages (or send new ones)
+* [x] User can view their direct messages (or send new ones)
 
 The following **additional** features are implemented:
 
 * [ ] List anything else that you can get done to improve the app functionality!
-* [x] Add app shortcut behavior
+* [x] Added app shortcut behavior for New tweet and search twitter 
 * [x] Used Navigation header to show user Profile
+* [x] Added Favorites list in user profiles
+
 
 ## Video Walkthrough
 
 Here's a walkthrough of implemented user stories:
 
-<img src='http://i.imgur.com/link/to/your/gif/file.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
+
+Video Walk through : http://i.imgur.com/W7j3wnb.gif , http://i.imgur.com/mmrAUxn.gif
+
+<img src='http://i.imgur.com/W7j3wnb.gif' title='Video Walkthrough 1' width='' alt='Video Walkthrough' />
+
+<img src='http://i.imgur.com/mmrAUxn.gif' title='Video Walkthrough 2 ' width='' alt='Video Walkthrough' />
 
 GIF created with [LiceCap](http://www.cockos.com/licecap/).
 
 ## Notes
 
 Describe any challenges encountered while building the app.
+1. Coordinator layout and appBar not able to scroll up in Profile activity. Not able to solve it even though used app:layout_behavior="@string/appbar_scrolling_view_behavior"
 
 ## Open-source libraries used
 
